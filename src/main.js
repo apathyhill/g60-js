@@ -10,9 +10,11 @@ ctx = null;
 width = null;
 height = null;
 
-// Color Settings
+// Drawing Settings
 const COLOR_MODES = Object.freeze({"RGB": 0, "HSL": 1});
 colorMode = COLOR_MODES.RGB;
+fillEnabled = false;
+strokeEnabled = false;
 
 // Engine Variables
 instances = [];
@@ -64,7 +66,8 @@ function drawSetColorMode(mode) {
 }
 
 function drawGetColor(x, y=null, z=null, w=1) {
-    switch( colorMode) {
+    if (typeof x === "string") { return x; }
+    switch (colorMode) {
         case COLOR_MODES.RGB:
             if (z === null) { // Grayscale mode
                 if (y !== null) { // Set opacity if not null
@@ -96,22 +99,40 @@ function drawSetBackground(x, y=null, z=null, w=1) {
 function drawSetFill(x, y=null, z=null, w=1) {
     var color = drawGetColor(x, y, z, w);
     ctx.fillStyle = color;
+    fillEnabled = true;
 }
 
 function drawSetStroke(x, y=null, z=null, w=1) {
     var color = drawGetColor(x, y, z, w);
     ctx.strokeStyle = color;
+    fillEnabled = true;
+}
+
+function fillOff() {
+    fillEnabled = false;
+}
+
+function strokeOff() {
+    strokeEnabled = false;
 }
 
 function drawSetLineWidth(w) {
-    ctx.lineWidth = w;
+    if (w == 0) { strokeOff(); }
+    else { ctx.lineWidth = w; }
 }
 
 function drawCircle(x, y, radius) {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.fill();
-    ctx.stroke();
+    if (fillEnabled) { ctx.fill(); }
+    if (strokeEnabled) { ctx.stroke(); }
+}
+
+function drawRect(x, y, w, h) {
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    if (fillEnabled) { ctx.fill(); }
+    if (strokeEnabled) { ctx.stroke(); }
 }
 
 /*
